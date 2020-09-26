@@ -1,5 +1,4 @@
 #![warn(rust_2018_idioms, clippy::all)]
-#![feature(trait_alias)]
 
 mod helpers;
 mod services;
