@@ -1,0 +1,25 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build_and_test:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+    - run: cargo build --release
+    - name: Make artifacts directory.
+      run: mkdir -p artifacts
+    - name: Copy artifacts.
+      run: |
+        find . -type f -name kfpl -exec cp '{}' ./artifacts/. ';'
+    - name: Upload artifacts.
+      uses: actions/upload-artifact@master
+      with:
+        name: artifacts
+        path: artifacts
+    
