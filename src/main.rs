@@ -32,6 +32,7 @@ use crate::services::{
 // TODO:
 //   * Make all of the version, yaml location, blah, blah, blah, configurable.
 //   * Pass through options to k3d.
+//   * Fix `kfpl service` bug.
 
 #[tokio::main]
 async fn main() -> Result<()> {
