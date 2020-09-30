@@ -40,14 +40,14 @@ impl Ensurable for Docker {
             .status_to_unit()
             .context("Unable to run the docker install script (might need sudo).")?;
 
+        // Ignore failure: might be in container.
         Command::new("usermod")
             .arg("-aG")
             .arg("docker")
             .arg("$USER")
             .status().await
-            .status_to_unit()
-            .context("Unable to add the current user to the docker group (might need sudo).")?;
-
+            .status_to_unit().unwrap_or(());
+                
         Command::new("rm")
             .arg("-f")
             .arg("get-docker.sh")

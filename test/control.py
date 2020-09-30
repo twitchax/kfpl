@@ -76,4 +76,5 @@ def flipcoin_pipeline():
             print_op('tails and %s <= 15!' % random_num_tail.output)
 
 if __name__ == '__main__':
+    #client = kfp.Client().set_user_namespace(namespace='kfstuff')
     kfp.Client().create_run_from_pipeline_func(flipcoin_pipeline, arguments={}, experiment_name = 'local_test')

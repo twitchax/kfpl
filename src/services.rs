@@ -9,3 +9,6 @@ pub mod port_forward;
 pub mod k3d_service;
 pub mod curl;
 pub mod git;
+pub mod kf_service;
+pub mod kfctl;
+pub mod k9s;

@@ -7,22 +7,22 @@ use crate::{
     helpers::ExitStatusIntoUnit
 };
 
-static NAME: &str = "KFP Service";
+static NAME: &str = "KF Service";
 // TODO: Fix this.
 static SERVICE_NAME: &str = "ml-pipeline";
-static KFP_VERSION: &str = "1.0.1";
+static TEMP_FOLDER: &str = "kftemp409231";
 
 #[derive(Default)]
-pub struct KfpService {}
+pub struct KfService {}
 
-impl Nameable for KfpService {
+impl Nameable for KfService {
     fn name(&self) -> &'static str {
         NAME
     }
 }
 
 #[async_trait]
-impl Ensurable for KfpService {
+impl Ensurable for KfService {
     async fn is_present(&self) -> Result<bool> {
         let k_out = Command::new("kubectl")
             .arg("get")
@@ -35,31 +35,19 @@ impl Ensurable for KfpService {
     }
 
     async fn make_present(&self) -> Result<()> {
-        Command::new("kubectl")
-            .arg("apply")
-            .arg("-k")
-            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref={}", KFP_VERSION))
+        Command::new("mkdir")
+            .arg("-p")
+            .arg(TEMP_FOLDER)
             .status().await
             .status_to_unit()
-            .context("Unable to apply the KFP cluster scoped resources.")?;
+            .context("Unable to create a KubeFlow temp directory.")?;
 
-        Command::new("kubectl")
-            .arg("wait")
-            .arg("--for")
-            .arg("condition=established")
-            .arg("--timeout=60s")
-            .arg("crd/applications.app.k8s.io")
+        Command::new("sh")
+            .arg("-c")
+            .arg(format!("cd {}; kfctl apply -V -f https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_k8s_istio.v1.1.0.yaml", TEMP_FOLDER))
             .status().await
             .status_to_unit()
-            .context("Unable to wait for KFP CRD deployment.")?;
-
-        Command::new("kubectl")
-            .arg("apply")
-            .arg("-k")
-            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/env/platform-agnostic-pns?ref={}", KFP_VERSION))
-            .status().await
-            .status_to_unit()
-            .context("Unable to apply the KFP platform agnostic deployment.")?;
+            .context("Unable to apply the KF kustomize script.")?;
 
         tokio::time::delay_for(tokio::time::Duration::from_secs(10)).await;
 
@@ -76,10 +64,17 @@ impl Ensurable for KfpService {
             .status_to_unit()
             .context("Unable to wait for the ml-pipeline deployment to come up.")?;
 
+        Command::new("rm")
+            .arg("-rf")
+            .arg(TEMP_FOLDER)
+            .status().await
+            .status_to_unit()
+            .context("Unable to remove the KF temp directory.")?;
+
         if self.is_present().await? {
             Ok(())
         } else {
-            Err(Error::msg("Unable to verify that the kfp service is running."))
+            Err(Error::msg("Unable to verify that the kf service is running."))
         }
     }
 }
