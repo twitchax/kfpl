@@ -81,7 +81,17 @@ async fn main() -> Result<()> {
                     .long("k3d-api-port")
                     .takes_value(true)
                     .default_value("6443")
-                    .help("The port to which the k3d load balancer for the kubernetes API is bound.")))
+                    .help("The port to which the k3d load balancer for the kubernetes API is bound."))
+                .arg(Arg::with_name("kfp_version")
+                    .long("kfp-version")
+                    .takes_value(true)
+                    .default_value("1.0.4")
+                    .help("The specific version of KFP to install (only works with the `--kfp-only` option)."))
+                .arg(Arg::with_name("kfp_version")
+                    .long("kfp-version")
+                    .takes_value(true)
+                    .default_value("https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_k8s_istio.v1.1.0.yaml")
+                    .help("The specific YAML manifest used to deploy KF (is ignored when `--kfp-only` is set).")))
             .subcommand(SubCommand::with_name("stop")
                 .about("Stops the k8s cluster, and the KFP service.")
                 .arg(Arg::with_name("k3d_cluster_name")
@@ -158,6 +168,8 @@ async fn service(confirm: bool, args: &ArgMatches<'_>) -> Result<()> {
             let k3d_image = sub_args.value_of("k3d_image").unwrap();
             let k3d_api_address = sub_args.value_of("k3d_api_address").unwrap();
             let k3d_api_port = sub_args.value_of("k3d_api_port").unwrap();
+            let kfp_version = sub_args.value_of("kfp_version").unwrap();
+            let kf_yaml = sub_args.value_of("kf_yaml").unwrap();
 
             K3dService::default()
                 .with_k3d_cluster_name(k3d_cluster_name)
@@ -167,9 +179,13 @@ async fn service(confirm: bool, args: &ArgMatches<'_>) -> Result<()> {
                 .ensure(confirm).await?;
 
             if sub_args.is_present("kfp_only") {
-                KfpService::default().ensure(confirm).await?;
+                KfpService::default()
+                    .with_kfp_version(kfp_version)
+                    .ensure(confirm).await?;
             } else {
-                KfService::default().ensure(confirm).await?;
+                KfService::default()
+                    .with_kf_yaml(kf_yaml)
+                    .ensure(confirm).await?;
             }
         },
         "stop" => {

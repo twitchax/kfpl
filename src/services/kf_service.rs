@@ -13,7 +13,16 @@ static SERVICE_NAME: &str = "ml-pipeline";
 static TEMP_FOLDER: &str = "kftemp409231";
 
 #[derive(Default)]
-pub struct KfService {}
+pub struct KfService {
+    kf_yaml: String
+}
+
+impl KfService {
+    pub fn with_kf_yaml(mut self, n: &str) -> Self {
+        self.kf_yaml = n.to_owned();
+        self
+    }
+}
 
 impl Nameable for KfService {
     fn name(&self) -> &'static str {
@@ -44,7 +53,7 @@ impl Ensurable for KfService {
 
         Command::new("sh")
             .arg("-c")
-            .arg(format!("cd {}; kfctl apply -V -f https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_k8s_istio.v1.1.0.yaml", TEMP_FOLDER))
+            .arg(format!("cd {}; kfctl apply -V -f {}", TEMP_FOLDER, self.kf_yaml))
             .status().await
             .status_to_unit()
             .context("Unable to apply the KF kustomize script.")?;

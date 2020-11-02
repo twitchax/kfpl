@@ -8,12 +8,19 @@ use crate::{
 };
 
 static NAME: &str = "KFP Service";
-// TODO: Fix this.
 static SERVICE_NAME: &str = "ml-pipeline";
-static KFP_VERSION: &str = "1.0.1";
 
 #[derive(Default)]
-pub struct KfpService {}
+pub struct KfpService {
+    kfp_version: String
+}
+
+impl KfpService {
+    pub fn with_kfp_version(mut self, n: &str) -> Self {
+        self.kfp_version = n.to_owned();
+        self
+    }
+}
 
 impl Nameable for KfpService {
     fn name(&self) -> &'static str {
@@ -38,7 +45,7 @@ impl Ensurable for KfpService {
         Command::new("kubectl")
             .arg("apply")
             .arg("-k")
-            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref={}", KFP_VERSION))
+            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref={}", self.kfp_version))
             .status().await
             .status_to_unit()
             .context("Unable to apply the KFP cluster scoped resources.")?;
@@ -56,7 +63,7 @@ impl Ensurable for KfpService {
         Command::new("kubectl")
             .arg("apply")
             .arg("-k")
-            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/env/platform-agnostic-pns?ref={}", KFP_VERSION))
+            .arg(format!("github.com/kubeflow/pipelines/manifests/kustomize/env/platform-agnostic-pns?ref={}", self.kfp_version))
             .status().await
             .status_to_unit()
             .context("Unable to apply the KFP platform agnostic deployment.")?;
