@@ -10,7 +10,7 @@ Automates running KubeFlow Pipelines (KFP) locally.
 ### Install
 
 ```bash
-curl -LO https://github.com/twitchax/kfpl/releases/download/v1.1.0/kfpl
+curl -LO https://github.com/twitchax/kfpl/releases/download/v1.2.0/kfpl
 chmod +x ./kfpl
 sudo mv ./kfpl /usr/local/bin/kfpl
 ```
