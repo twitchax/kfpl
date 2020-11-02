@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
                     .default_value("1.0.4")
                     .help("The specific version of KFP to install (only works with the `--kfp-only` option)."))
                 .arg(Arg::with_name("kf_yaml")
-                    .long("kf_yaml")
+                    .long("kf-yaml")
                     .takes_value(true)
                     .default_value("https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_k8s_istio.v1.1.0.yaml")
                     .help("The specific YAML manifest used to deploy KF (is ignored when `--kfp-only` is set).")))
