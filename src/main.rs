@@ -42,7 +42,7 @@ async fn main() -> Result<()> {
     let init_help = &*format!("Ensures the dependencies are met ({}).", Paint::yellow("may need to be run as sudo"));
 
     let app = App::new("kfpl")
-        .version("1.1.0")
+        .version("1.2.0")
         .author("Aaron Roney")
         .about("Automates running KubeFlow Pipelines (KFP) locally.")
         .arg(Arg::with_name("skip_confirm")
@@ -87,8 +87,8 @@ async fn main() -> Result<()> {
                     .takes_value(true)
                     .default_value("1.0.4")
                     .help("The specific version of KFP to install (only works with the `--kfp-only` option)."))
-                .arg(Arg::with_name("kfp_version")
-                    .long("kfp-version")
+                .arg(Arg::with_name("kf_yaml")
+                    .long("kf_yaml")
                     .takes_value(true)
                     .default_value("https://raw.githubusercontent.com/kubeflow/manifests/v1.1-branch/kfdef/kfctl_k8s_istio.v1.1.0.yaml")
                     .help("The specific YAML manifest used to deploy KF (is ignored when `--kfp-only` is set).")))
